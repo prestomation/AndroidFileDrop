@@ -1,4 +1,4 @@
-#/usr/bin/python
+#!/usr/bin/python
 
 import urllib, urllib2
 
@@ -148,8 +148,10 @@ class C2DM():
 
 
 sender = C2DM()
+#This is the C2DM registration ID your phone gets from the Google C2DM service. 
 sender.registrationId = "APA91bG_wjhPPoM1SHfNWE-yWs2sUCiHEv0osbDx2xv1hlayuu6hS6iW3gqb_MT9ISAof1uRAypQQ2B55zMoJVzp6omEPs7RYwpGoXpA9bnuQ_b4VVI0q2wVRV3X1S_CR9qRw6hhtfAJ"
 sender.collapseKey = 1
+#We don't use any data yet, this is from the example
 data = {'message' : 'Hello there', 'hats' : 54}
 response = sender.sendMessage(data)
 

@@ -3,4 +3,5 @@
     <string name="hello">Hello World, SetupActivity!</string>
     <string name="app_name">AndroidFileDrop</string>
     <string name="select_account">Please select the account to use:</string>
+    <string name="select_options">Options:</string>
 </resources>

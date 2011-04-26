@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import com.google.android.c2dm.C2DMessaging;
@@ -34,21 +36,25 @@ public class SetupActivity extends Activity {
 	public static final String AUTH_PERMISSION_ACTION = "com.prestomation.android.androidfiledrop.AUTH_PERMISSION";
 
 	private boolean mPendingAuth = false;
+	private int mScreenId = -1;
 	private int mAccountSelectedPosition = 0;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.accountselection);
-		setSelectAccount();
+		int savedScreenId = Prefs.get(this).getInt("savedScreenId", R.layout.accountselection);
 		
+		setScreenContent(savedScreenId);
+		
+		registerReceiver(UpdateUIReceiver, new IntentFilter(UPDATE_UI_ACTION)) ;
 		registerReceiver(AuthPermissionReceiver, new IntentFilter(AUTH_PERMISSION_ACTION)) ;
 
 	}
 	
 	@Override
 	public void onDestroy() {
+		unregisterReceiver(UpdateUIReceiver);
 		unregisterReceiver(AuthPermissionReceiver);
 		super.onDestroy();
 	}
@@ -68,7 +74,32 @@ public class SetupActivity extends Activity {
 		}
 	}
 	
-	private void setSelectAccount() {
+private void setScreenContent(int screenId)
+{
+	mScreenId = screenId;
+	
+		setContentView(screenId);
+		
+		switch(screenId)
+		{
+		case R.layout.accountselection:
+		{
+		setSelectAccountScreenContent();
+		break;
+		
+		}
+		
+		
+		}
+		
+		SharedPreferences.Editor editor = Prefs.get(this).edit();
+		editor.putInt("savedScreenId", screenId);
+		editor.commit();
+		
+	
+}
+	
+	private void setSelectAccountScreenContent() {
 		Button backButton = (Button) findViewById(R.id.back);
 		backButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -111,13 +142,49 @@ public class SetupActivity extends Activity {
 	}
 	private void registerAccount(String theAccount)
 	{
-			SharedPreferences prefs = this.getSharedPreferences("AndroidFileDrop_Prefs", 0);
+			SharedPreferences prefs = Prefs.get(this);
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString("accountName", theAccount);
 			editor.commit();
 			C2DMessaging.register(this, CloudRegistrar.EMAIL_ID);
 	}
 	
+	private final BroadcastReceiver UpdateUIReceiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (mScreenId == R.layout.accountselection){
+				//We must be in the middle of selecting account/registering
+				handleConnectingUpdate(intent.getIntExtra(
+						CloudRegistrar.STATUS_EXTRA, CloudRegistrar.ERROR_STATUS));
+				
+				
+				
+			}
+			//TODO: disconnecting case
+			else
+				//else if (mScreenId == R.layout.connected)
+			{
+				
+			}
+		}
+	};
+	
+	private void handleConnectingUpdate(int status){
+		if (status == CloudRegistrar.REGISTERED_STATUS)
+		{
+			setScreenContent(R.layout.select_options);
+		}
+		else
+		{
+			//There was an error
+			Button nextButton = (Button) findViewById(R.id.next);
+			nextButton.setEnabled(true);
+		}
+		
+		
+		
+	}
 	private final BroadcastReceiver AuthPermissionReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {

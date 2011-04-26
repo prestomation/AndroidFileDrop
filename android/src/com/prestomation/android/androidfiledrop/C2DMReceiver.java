@@ -3,6 +3,8 @@ package com.prestomation.android.androidfiledrop;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import com.google.android.c2dm.C2DMBaseReceiver;
 
