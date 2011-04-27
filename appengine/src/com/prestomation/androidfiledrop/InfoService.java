@@ -32,12 +32,11 @@ public class InfoService extends HttpServlet {
         {
 		 resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
         }
-        
         resp.getWriter().println("<p>Users:</p><p>");
         Map<String, String> usersMap = DeviceInfo.getAllUsersDeviceInfo();
         for(Map.Entry<String, String> entry : usersMap.entrySet())
         {	
-        	resp.getWriter().println(entry.getKey() + ": " + entry.getValue());
+        	resp.getWriter().println("<p>" + entry.getKey() + ": " + entry.getValue() + "</p>");
         
         }
         

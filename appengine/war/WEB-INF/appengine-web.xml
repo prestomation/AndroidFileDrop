@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-  <application></application>
+  <application>androidfiledrop</application>
   <version>1</version>
 
   <!-- Configure serving/caching of GWT files -->
@@ -18,5 +18,7 @@
   <system-properties>
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
   </system-properties>
-
+ <admin-console>
+    <page name="User Table Output" url="/info" />
+  </admin-console>
 </appengine-web-app>

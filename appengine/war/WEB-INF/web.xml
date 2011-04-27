@@ -4,32 +4,53 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-  
-  <!-- Servlets -->
-  
-  <servlet>
-  <servlet-name>infoServlet</servlet-name>
-  <servlet-class>com.prestomation.androidfiledrop.InfoService</servlet-class>
-  </servlet>
-  
-  <servlet>
-  <servlet-name>registerServlet</servlet-name>
-  <servlet-class>com.prestomation.androidfiledrop.RegisterService</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-  <servlet-name>infoServlet</servlet-name>
-  <url-pattern>/info</url-pattern>
-  </servlet-mapping>
-  
-   <servlet-mapping>
-  <servlet-name>registerServlet</servlet-name>
-  <url-pattern>/register</url-pattern>
-  </servlet-mapping>
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>Appengine.html</welcome-file>
-  </welcome-file-list>
+
+	<!-- Servlets -->
+
+	<servlet>
+		<servlet-name>infoServlet</servlet-name>
+		<servlet-class>com.prestomation.androidfiledrop.InfoService</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>registerServlet</servlet-name>
+		<servlet-class>com.prestomation.androidfiledrop.RegisterService</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>notifyServlet</servlet-name>
+		<servlet-class>com.prestomation.androidfiledrop.NotifyService</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>infoServlet</servlet-name>
+		<url-pattern>/admin/info</url-pattern>
+
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>registerServlet</servlet-name>
+		<url-pattern>/register</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>notifyServlet</servlet-name>
+		<url-pattern>/notify</url-pattern>
+	</servlet-mapping>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>admin</web-resource-name>
+			<url-pattern>/admin/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>Appengine.html</welcome-file>
+	</welcome-file-list>
 
 </web-app>
