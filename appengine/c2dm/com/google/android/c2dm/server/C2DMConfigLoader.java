@@ -33,7 +33,7 @@ import com.google.appengine.api.datastore.KeyFactory;
  * Stores config information related to data messaging.
  * 
  */
-class C2DMConfigLoader {
+public class C2DMConfigLoader {
 	private final PersistenceManagerFactory PMF;
 	private static final Logger log = Logger.getLogger(C2DMConfigLoader.class
 			.getName());

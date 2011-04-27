@@ -2,6 +2,7 @@ package com.prestomation.android.androidfiledrop;
 
 import java.util.ArrayList;
 
+import android.R.layout;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -13,6 +14,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,6 +36,7 @@ import com.google.android.c2dm.C2DMessaging;
 public class SetupActivity extends Activity {
 	public static final String UPDATE_UI_ACTION = "com.prestomation.android.androidfiledrop.UPDATE_UI";
 	public static final String AUTH_PERMISSION_ACTION = "com.prestomation.android.androidfiledrop.AUTH_PERMISSION";
+	public static final String TAG = "AndroidFileDrop";
 
 	private boolean mPendingAuth = false;
 	private int mScreenId = -1;
@@ -82,13 +85,14 @@ public class SetupActivity extends Activity {
 
 		switch (screenId) {
 		case R.layout.accountselection: {
+			Log.i(TAG, "Entering account selection screen");
 			setSelectAccountScreenContent();
 			break;
 
 		}
-		
+
 		case R.layout.select_options: {
-			
+			Log.i(TAG, "Entering options screen");
 			setOptionsScreenContent();
 			break;
 		}
@@ -103,12 +107,23 @@ public class SetupActivity extends Activity {
 
 	private void setOptionsScreenContent() {
 		// TODO Auto-generated method stub
-		//Populate our options
-		//Possible options:
-		//1. Automatically download file, or prompt
-		//2. Target directory for downloads
-		
-		
+		// Populate our options
+		// Possible options:
+		// 1. Automatically download file, or prompt
+		// 2. Target directory for downloads
+
+		Button clearPrefsButton = (Button) findViewById(R.id.clearSettings);
+		clearPrefsButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				resetPrefs();
+				finish();
+
+			}
+		});
+		clearPrefsButton.setEnabled(true);
+
 	}
 
 	private void setSelectAccountScreenContent() {
@@ -206,5 +221,9 @@ public class SetupActivity extends Activity {
 			}
 		}
 	};
+
+	private void resetPrefs() {
+		Prefs.deletePrefs(this);
+	}
 
 }

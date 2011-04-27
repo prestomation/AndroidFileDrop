@@ -49,6 +49,7 @@ public class NotifyService extends HttpServlet {
 		boolean response = false;
 		try {
 
+			//This is where the magic happens
 			response = push.sendNoRetry(devID, collapseKey, "");
 		} catch (IOException ex) {
 			if ("NotRegistered".equals(ex.getMessage())

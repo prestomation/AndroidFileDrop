@@ -10,6 +10,8 @@ C2DM_ID = "APA91bG_wjhPPoM1SHfNWE-yWs2sUCiHEv0osbDx2xv1hlayuu6hS6iW3gqb_MT9ISAof
 
 
 c2dmtoken = authlib.get_google_authtoken("androidfiledrop", "ac2dm", ACCOUNT_EMAIL, ACCOUNT_PASS)
+print c2dmtoken
 
-print authlib.testC2DM(c2dmtoken, C2DM_ID, "something")
+#uncomment to send c2dm message
+#print authlib.testC2DM(c2dmtoken, C2DM_ID, "something")
 

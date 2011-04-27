@@ -91,7 +91,7 @@ public class C2DMessaging {
 		return singleton;
 	}
 
-	C2DMConfigLoader getServerConfig() {
+	public C2DMConfigLoader getServerConfig() {
 		return serverConfig;
 	}
 
@@ -166,7 +166,7 @@ public class C2DMessaging {
 			// from DB. This happens if the password is changed or token expires. Either admin
 			// is updating the token, or Update-Client-Auth was received by another server,
 			// and next retry will get the good one from database.
-			log.warning("Unauthorized - need token");
+			log.warning("Unauthorized - need token: " + authToken);
 			serverConfig.invalidateCachedToken();
 			return false;
 		}

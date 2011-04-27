@@ -138,6 +138,10 @@ class AppEngineClient():
         # get the token
         try:
             auth_token = get_google_authtoken(appname, service, user, password)
+            print
+            print "auth token"
+            print auth_token
+            print
         except AuthError, e:
             if e.reason == "BadAuthentication":
                 logging.error( "Invalid username or password." )
@@ -163,6 +167,7 @@ class AppEngineClient():
 
         # now get the cookie
         cookie = self.get_gae_cookie(appname, auth_token)
+        print cookie
         assert cookie
         return cookie
 
@@ -211,7 +216,11 @@ class AppEngineClient():
                     response.msg, response.headers, response.fp)
 
         cookie = response.headers.get('set-cookie')
-        assert cookie and cookie.startswith('ACSID')
+        print
+        print "cookie"
+        print cookie
+        print
+        assert cookie and cookie.startswith('SACSID')
         return cookie.replace('; HttpOnly', '')
 
 

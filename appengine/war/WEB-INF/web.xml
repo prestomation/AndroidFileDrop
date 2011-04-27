@@ -22,11 +22,21 @@
 		<servlet-class>com.prestomation.androidfiledrop.NotifyService</servlet-class>
 	</servlet>
 
+	<servlet>
+		<servlet-name>updateTokenServlet</servlet-name>
+		<servlet-class>com.prestomation.androidfiledrop.UpdateTokenService</servlet-class>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>infoServlet</servlet-name>
 		<url-pattern>/admin/info</url-pattern>
-
 	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>updateTokenServlet</servlet-name>
+		<url-pattern>/admin/updatetoken</url-pattern>
+	</servlet-mapping>
+
 
 	<servlet-mapping>
 		<servlet-name>registerServlet</servlet-name>

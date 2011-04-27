@@ -9,5 +9,12 @@ public class Prefs {
 	public static SharedPreferences get(Context ctx) {
 		return ctx.getSharedPreferences("AFD_PREFS", 0);
 	}
+	
+	public static void deletePrefs(Context ctx)
+	{
+		SharedPreferences.Editor settings = get(ctx).edit();
+		settings.clear();
+		settings.commit();
+	}
 
 }
