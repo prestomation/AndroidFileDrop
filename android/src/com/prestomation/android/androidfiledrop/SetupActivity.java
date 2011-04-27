@@ -43,15 +43,17 @@ public class SetupActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		int savedScreenId = Prefs.get(this).getInt("savedScreenId", R.layout.accountselection);
-		
+		int savedScreenId = Prefs.get(this).getInt("savedScreenId",
+				R.layout.accountselection);
+
 		setScreenContent(savedScreenId);
-		
-		registerReceiver(UpdateUIReceiver, new IntentFilter(UPDATE_UI_ACTION)) ;
-		registerReceiver(AuthPermissionReceiver, new IntentFilter(AUTH_PERMISSION_ACTION)) ;
+
+		registerReceiver(UpdateUIReceiver, new IntentFilter(UPDATE_UI_ACTION));
+		registerReceiver(AuthPermissionReceiver, new IntentFilter(
+				AUTH_PERMISSION_ACTION));
 
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		unregisterReceiver(UpdateUIReceiver);
@@ -60,45 +62,55 @@ public class SetupActivity extends Activity {
 	}
 
 	@Override
-	protected void onResume(){
+	protected void onResume() {
 		super.onResume();
-		if(mPendingAuth){
+		if (mPendingAuth) {
 			mPendingAuth = false;
 			String regID = C2DMessaging.getRegistrationId(this);
-			if (regID != null && !regID.equals("")){
+			if (regID != null && !regID.equals("")) {
 				CloudRegistrar.registerWithCloud(this, regID);
-			}
-			else{
-			C2DMessaging.register(this, CloudRegistrar.EMAIL_ID);
+			} else {
+				C2DMessaging.register(this, CloudRegistrar.EMAIL_ID);
 			}
 		}
 	}
-	
-private void setScreenContent(int screenId)
-{
-	mScreenId = screenId;
-	
+
+	private void setScreenContent(int screenId) {
+		mScreenId = screenId;
+
 		setContentView(screenId);
-		
-		switch(screenId)
-		{
-		case R.layout.accountselection:
-		{
-		setSelectAccountScreenContent();
-		break;
-		
+
+		switch (screenId) {
+		case R.layout.accountselection: {
+			setSelectAccountScreenContent();
+			break;
+
 		}
 		
-		
+		case R.layout.select_options: {
+			
+			setOptionsScreenContent();
+			break;
 		}
-		
+
+		}
+
 		SharedPreferences.Editor editor = Prefs.get(this).edit();
 		editor.putInt("savedScreenId", screenId);
 		editor.commit();
+
+	}
+
+	private void setOptionsScreenContent() {
+		// TODO Auto-generated method stub
+		//Populate our options
+		//Possible options:
+		//1. Automatically download file, or prompt
+		//2. Target directory for downloads
 		
-	
-}
-	
+		
+	}
+
 	private void setSelectAccountScreenContent() {
 		Button backButton = (Button) findViewById(R.id.back);
 		backButton.setOnClickListener(new OnClickListener() {
@@ -112,27 +124,27 @@ private void setScreenContent(int screenId)
 			public void onClick(View v) {
 				ListView listview = (ListView) findViewById(R.id.AccountSelectlistView);
 				mAccountSelectedPosition = listview.getCheckedItemPosition();
-				TextView account = (TextView) listview.getChildAt(mAccountSelectedPosition);
+				TextView account = (TextView) listview
+						.getChildAt(mAccountSelectedPosition);
 				nextButton.setEnabled(false);
 				registerAccount((String) account.getText());
-				
+
 			}
 		});
 		String accounts[] = getAccounts();
-		ListView accountLV = (ListView) findViewById(R.id.AccountSelectlistView)
-;
-		accountLV.setAdapter(new ArrayAdapter<String>(this, R.layout.account, accounts));
+		ListView accountLV = (ListView) findViewById(R.id.AccountSelectlistView);
+		accountLV.setAdapter(new ArrayAdapter<String>(this, R.layout.account,
+				accounts));
 		accountLV.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		accountLV.setItemChecked(0, true);
-		
 
 	}
-	
-	private String[] getAccounts(){
-		
+
+	private String[] getAccounts() {
+
 		ArrayList<String> accounts = new ArrayList<String>();
-		for (Account ac : AccountManager.get(this).getAccounts()){
-			if (ac.type.equals("com.google")){
+		for (Account ac : AccountManager.get(this).getAccounts()) {
+			if (ac.type.equals("com.google")) {
 				accounts.add(ac.name);
 			}
 		}
@@ -140,57 +152,53 @@ private void setScreenContent(int screenId)
 		accounts.toArray(accountArray);
 		return accountArray;
 	}
-	private void registerAccount(String theAccount)
-	{
-			SharedPreferences prefs = Prefs.get(this);
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString("accountName", theAccount);
-			editor.commit();
-			C2DMessaging.register(this, CloudRegistrar.EMAIL_ID);
+
+	private void registerAccount(String theAccount) {
+		SharedPreferences prefs = Prefs.get(this);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putString("accountName", theAccount);
+		editor.commit();
+		C2DMessaging.register(this, CloudRegistrar.EMAIL_ID);
 	}
-	
+
 	private final BroadcastReceiver UpdateUIReceiver = new BroadcastReceiver() {
-		
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (mScreenId == R.layout.accountselection){
-				//We must be in the middle of selecting account/registering
+			if (mScreenId == R.layout.accountselection) {
+				// We must be in the middle of selecting account/registering
 				handleConnectingUpdate(intent.getIntExtra(
-						CloudRegistrar.STATUS_EXTRA, CloudRegistrar.ERROR_STATUS));
-				
-				
-				
+						CloudRegistrar.STATUS_EXTRA,
+						CloudRegistrar.ERROR_STATUS));
+
 			}
-			//TODO: disconnecting case
+			// TODO: disconnecting case
 			else
-				//else if (mScreenId == R.layout.connected)
+			// else if (mScreenId == R.layout.connected)
 			{
-				
+
 			}
 		}
 	};
-	
-	private void handleConnectingUpdate(int status){
-		if (status == CloudRegistrar.REGISTERED_STATUS)
-		{
+
+	private void handleConnectingUpdate(int status) {
+		if (status == CloudRegistrar.REGISTERED_STATUS) {
 			setScreenContent(R.layout.select_options);
-		}
-		else
-		{
-			//There was an error
+		} else {
+			// There was an error
 			Button nextButton = (Button) findViewById(R.id.next);
 			nextButton.setEnabled(true);
 		}
-		
-		
-		
+
 	}
+
 	private final BroadcastReceiver AuthPermissionReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Bundle extras = intent.getBundleExtra("AccountManagerBundle");
-			if (extras != null ){
-				Intent authIntent = (Intent) extras.get(AccountManager.KEY_INTENT);
+			if (extras != null) {
+				Intent authIntent = (Intent) extras
+						.get(AccountManager.KEY_INTENT);
 				if (authIntent != null) {
 					mPendingAuth = true;
 					startActivity(authIntent);
@@ -198,5 +206,5 @@ private void setScreenContent(int screenId)
 			}
 		}
 	};
-	
+
 }
