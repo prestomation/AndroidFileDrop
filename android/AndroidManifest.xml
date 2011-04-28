@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.prestomation.android.androidfiledrop" android:versionCode="1"
 	android:versionName="1.0">
-	<uses-sdk android:minSdkVersion="8" />
+	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10" />
 
 	<permission android:protectionLevel="signature"
 		android:name="com.prestomation.android.androidfiledrop.permission.C2D_MESSAGE" />
@@ -17,11 +17,7 @@
 	<uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
 	<uses-permission android:name="android.permission.USE_CREDENTIALS"></uses-permission>
 	<uses-permission android:name="android.permission.GET_ACCOUNTS"></uses-permission>
-
-
-
-
-
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 
 	<application android:icon="@drawable/icon" android:label="@string/app_name">
 

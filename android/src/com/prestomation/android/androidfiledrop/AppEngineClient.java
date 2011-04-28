@@ -58,6 +58,7 @@ public class AppEngineClient {
     public AppEngineClient(Context context, String accountName) {
         this.mContext = context;
         this.mAccountName = accountName;
+        
     }
 
     public HttpResponse makeRequest(String urlPath, List<NameValuePair> params) throws Exception {
@@ -70,9 +71,8 @@ public class AppEngineClient {
 
     private HttpResponse makeRequestNoRetry(String urlPath, List<NameValuePair> params, boolean newToken)
             throws Exception {
-
-        // Get auth token for account
-        Account account = new Account(mAccountName, "com.google");
+    	  // Get auth token for account
+       /* Account account = new Account(mAccountName, "com.google");
         String authToken = getAuthToken(mContext, account);
         if (authToken == null) throw new PendingAuthException(mAccountName);
         if (newToken) {  // invalidate the cached token
@@ -107,20 +107,66 @@ public class AppEngineClient {
                 String[] pairs = value.split(";");
                 ascidCookie = pairs[0];
             }
-        }
-
+        }*/
+        String ascidCookie = getASCIDCookie(newToken);
+        
         // Make POST request
-        uri = new URI(BASE_URL + urlPath);
+        DefaultHttpClient client = new DefaultHttpClient();
+        URI uri = new URI(BASE_URL + urlPath);
         HttpPost post = new HttpPost(uri);
         UrlEncodedFormEntity entity =
             new UrlEncodedFormEntity(params, "UTF-8");
         post.setEntity(entity);
         post.setHeader("Cookie", ascidCookie);
         post.setHeader("X-Same-Domain", "1");  // XSRF
-        res = client.execute(post);
+        HttpResponse res = client.execute(post);
         return res;
     }
 
+    
+    public String getASCIDCookie(boolean  newToken) throws Exception{
+    	
+        // Get auth token for account
+        Account account = new Account(mAccountName, "com.google");
+        String authToken = getAuthToken(mContext, account);
+        if (authToken == null) throw new PendingAuthException(mAccountName);
+        if (newToken) {  // invalidate the cached token
+            AccountManager accountManager = AccountManager.get(mContext);
+            accountManager.invalidateAuthToken(account.type, authToken);
+            authToken = getAuthToken(mContext, account);
+        }
+
+    	
+    	
+    	// Get ACSID cookie
+        DefaultHttpClient client = new DefaultHttpClient();
+        String continueURL = BASE_URL;
+        URI uri = new URI(AUTH_URL + "?continue=" +
+                URLEncoder.encode(continueURL, "UTF-8") +
+                "&auth=" + authToken);
+        HttpGet method = new HttpGet(uri);
+        final HttpParams getParams = new BasicHttpParams();
+        HttpClientParams.setRedirecting(getParams, false);  // continue is not used
+        method.setParams(getParams);
+
+        HttpResponse res = client.execute(method);
+        Header[] headers = res.getHeaders("Set-Cookie");
+        if (res.getStatusLine().getStatusCode() != 302 ||
+                headers.length == 0) {
+            return res.toString();
+        }
+
+        String ascidCookie = null;
+        for (Header header: headers) {
+            if (header.getValue().indexOf("ACSID=") >=0) {
+                // let's parse it
+                String value = header.getValue();
+                String[] pairs = value.split(";");
+                ascidCookie = pairs[0];
+            }
+        }
+        return ascidCookie;
+    }
     private String getAuthToken(Context context, Account account) {
         String authToken = null;
         AccountManager accountManager = AccountManager.get(context);
