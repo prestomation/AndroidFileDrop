@@ -1,6 +1,7 @@
 import authlib
+import sys
 
-DEV_ID = "APA91bG_wjhPPoM1SHfNWE-yWs2sUCiHEv0osbDx2xv1hlayuu6hS6iW3gqb_MT9ISAof1uRAypQQ2B55zMoJVzp6omEPs7RYwpGoXpA9bnuQ_b4VVI0q2wVRV3X1S_CR9qRw6hhtfAJ"
+DEV_ID = "DQAAAL4AAACmtxfnjYKFhYMYQWVZgKMypgalUGXYZjWa2ddhZCiocsqKe2PtXxBoM3y1SsSxrZbEy4UQ3nOnZs7UlkNMZ5DkrW5CHMBTtndvtHWN_xB4osm3hxJHevPWHBoO48KXZ7bu8HowxXG2aY8tp3rheOAJEladhFwQjs8wiGwmqLhwbDfsRfsZZoTSrOqErocTeOvseH7nxOXCByQ_WN0OkQDtkTg6Obz5plAXMxoimrK4UwO"
 afdConn = authlib.AppEngineClient("androidfiledrop", "prestomation@gmail.com", sys.argv[1], True)
 print afdConn.registerDevice(DEV_ID)
 

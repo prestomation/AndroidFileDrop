@@ -24,8 +24,11 @@ http://stackoverflow.com/questions/816372/how-can-i-determine-a-user-id-based-on
 
 See also: http://markmail.org/thread/tgth5vmdqjacaxbx
 """
-import logging, md5, urllib, urllib2
+import logging, md5, urllib, urllib2, cookielib
 
+#This import is from easy_install or
+#http://pipe.scs.fsu.edu/PostHandler/MultipartPostHandler.py
+import MultipartPostHandler
 
 
 def get_google_authtoken(appname, service, email_address, password):
@@ -77,6 +80,7 @@ def get_opener(cookiejar=None):
     opener.add_handler(urllib2.HTTPDefaultErrorHandler())
     opener.add_handler(urllib2.HTTPErrorProcessor())
     opener.add_handler(urllib2.HTTPSHandler())
+    opener.add_handler(MultipartPostHandler.MultipartPostHandler())
     if cookiejar:
         opener.add_handler(urllib2.HTTPCookieProcessor(cookiejar))
     return opener
@@ -120,7 +124,7 @@ def testC2DM(authtoken, c2dmRegistrationID, collapseKey):
 class AppEngineClient():
 
     def __init__(self, appname, user, password, dev=False, admin=False):
-        self.ahToken = self.do_auth(appname, "ah", user, password, dev, admin)
+        self.ahCookie = self.do_auth(appname, "ah", user, password, dev, admin)
         self.appname = appname
         self.user = user
         self.dev = dev
@@ -138,10 +142,6 @@ class AppEngineClient():
         # get the token
         try:
             auth_token = get_google_authtoken(appname, service, user, password)
-            print
-            print "auth token"
-            print auth_token
-            print
         except AuthError, e:
             if e.reason == "BadAuthentication":
                 logging.error( "Invalid username or password." )
@@ -167,7 +167,6 @@ class AppEngineClient():
 
         # now get the cookie
         cookie = self.get_gae_cookie(appname, auth_token)
-        print cookie
         assert cookie
         return cookie
 
@@ -216,10 +215,6 @@ class AppEngineClient():
                     response.msg, response.headers, response.fp)
 
         cookie = response.headers.get('set-cookie')
-        print
-        print "cookie"
-        print cookie
-        print
         assert cookie and cookie.startswith('SACSID')
         return cookie.replace('; HttpOnly', '')
 
@@ -227,7 +222,7 @@ class AppEngineClient():
 
     def registerDevice(self, devID):
         opener = get_opener()
-        opener.addheaders.append(('Cookie', self.ahToken))
+        opener.addheaders.append(('Cookie', self.ahCookie))
         data = {}
         data['devregid'] = devID
         
@@ -235,13 +230,57 @@ class AppEngineClient():
         if self.dev:
             url = "http://localhost:8888/register"
         else:
-            url = "https://" + self.host + ".appspot.com/register"
+            url = "https://androidfiledrop.appspot.com/register"
 
 
 
         f = opener.open(url, params)
         return f
 
-                    
+    def getUploadUrl(self):
+        opener = get_opener()
+        opener.addheaders.append(('Cookie', self.ahCookie))
 
+        if self.dev:
+            url = "http://localhost:8888/upload/geturl"
+        else:
+            url = "https://androidfiledrop.appspot.com/upload/geturl"
+
+        return opener.open(url).read()
+
+
+    
+    def uploadFile(self, filepath):
+
+        uploadpath = self.getUploadUrl()
+
+        cookies = cookielib.CookieJar()
+        
+        cookiename = self.ahCookie.split("=")[0]
+        cookievalue = self.ahCookie.split("=")[1]
+        #print cookielib.Cookie(cookiename, cookievalue)
+
+        #opener = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler) 
+        opener = get_opener(cookies)
+        opener.addheaders.append(('Cookie', self.ahCookie))
+
+        params = { "myFile" : open(filepath, "rb")}
+                
+
+        try:
+            returnval =opener.open(uploadpath, params)
+        except urllib2.HTTPError, e:
+            if e.getcode() != 302:
+                raise
+
+        return self.notify()
+
+    def notify(self):
+
+        opener = get_opener()
+        opener.addheaders.append(('Cookie', self.ahCookie))
+        return opener.open("https://androidfiledrop.appspot.com/notify")
+
+
+                    
 
