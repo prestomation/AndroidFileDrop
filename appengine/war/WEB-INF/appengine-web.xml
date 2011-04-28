@@ -19,6 +19,6 @@
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
   </system-properties>
  <admin-console>
-    <page name="User Table Output" url="/info" />
+    <page name="User Table Output" url="/admin/info" />
   </admin-console>
 </appengine-web-app>

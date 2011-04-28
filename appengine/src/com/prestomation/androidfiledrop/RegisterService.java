@@ -45,7 +45,7 @@ public class RegisterService extends HttpServlet {
 		else
 		{
 			//We have a user
-			DeviceInfo.setDeviceInfoForUser(user, deviceRegistrationId);
+			UserInfo.setUserDevice(user, deviceRegistrationId);
 			resp.getWriter().println(OK_STATUS);
 			
 			

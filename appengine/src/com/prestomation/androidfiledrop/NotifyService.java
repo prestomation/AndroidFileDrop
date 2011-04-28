@@ -39,7 +39,7 @@ public class NotifyService extends HttpServlet {
 			throws IOException {
 		C2DMessaging push = C2DMessaging.get(getServletContext());
 		String collapseKey = "collapseKey";
-		String devID = DeviceInfo.getDeviceInfoForUser(user);
+		String devID = UserInfo.getUserDevice(user);
 		if (devID == null) {
 
 			resp.getWriter().write("User has no device registered");
@@ -50,12 +50,12 @@ public class NotifyService extends HttpServlet {
 		try {
 
 			//This is where the magic happens
-			response = push.sendNoRetry(devID, collapseKey, "");
+			response = push.sendNoRetry(devID, collapseKey, "filename", UserInfo.getUserFileName(user));
 		} catch (IOException ex) {
 			if ("NotRegistered".equals(ex.getMessage())
 					|| "InvalidRegistration".equals(ex.getMessage())) {
 				// This device isn't registered with C2DM
-				DeviceInfo.clearUser(user);
+				UserInfo.clearUser(user);
 
 			}
 

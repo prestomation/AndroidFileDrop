@@ -26,6 +26,17 @@
 		<servlet-name>updateTokenServlet</servlet-name>
 		<servlet-class>com.prestomation.androidfiledrop.UpdateTokenService</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>uploadServlet</servlet-name>
+		<servlet-class>com.prestomation.androidfiledrop.UploadService</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>downloadServlet</servlet-name>
+		<servlet-class>com.prestomation.androidfiledrop.DownloadService</servlet-class>
+	</servlet>
+
 
 	<servlet-mapping>
 		<servlet-name>infoServlet</servlet-name>
@@ -37,6 +48,15 @@
 		<url-pattern>/admin/updatetoken</url-pattern>
 	</servlet-mapping>
 
+	<servlet-mapping>
+		<servlet-name>uploadServlet</servlet-name>
+		<url-pattern>/upload/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>downloadServlet</servlet-name>
+		<url-pattern>/download</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>registerServlet</servlet-name>
