@@ -43,19 +43,29 @@ public class NotifyService extends HttpServlet {
 		if (devID == null) {
 
 			resp.getWriter().write("User has no device registered");
+			resp.sendError(400, "User has no device registered");
 			return false;
 		}
 
 		boolean response = false;
 		try {
 
-			//This is where the magic happens
-			response = push.sendNoRetry(devID, collapseKey, "filename", UserInfo.getUserFileName(user));
+			// This is where the magic happens
+			String filename = UserInfo.getUserFileName(user);
+			if (filename == null){
+				resp.getWriter().write("No file for user");
+				resp.sendError(400, "No file for user");
+			}
+			response = push.sendNoRetry(devID, collapseKey, "filename",
+					filename);
 		} catch (IOException ex) {
 			if ("NotRegistered".equals(ex.getMessage())
 					|| "InvalidRegistration".equals(ex.getMessage())) {
 				// This device isn't registered with C2DM
 				UserInfo.clearUser(user);
+				resp.getWriter().write("Invalid Registration");
+				resp.sendError(400, "Invalid Registration");
+				return  false;
 
 			}
 

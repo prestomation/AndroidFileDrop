@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
@@ -35,6 +36,7 @@ public class UserInfo {
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
 		datastore.put(userEntry);
+		log.info("Added user: " + user.getEmail());
 	}
 
 	public static String getUserDevice(User user) {
@@ -115,6 +117,7 @@ public class UserInfo {
 		} catch (EntityNotFoundException e) {
 			response = false;
 		}
+		log.info("Added file for user: " + user.getEmail());
 		return response;
 	}
 

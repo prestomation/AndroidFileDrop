@@ -32,6 +32,26 @@ public class CloudRegistrar {
 				try {
 					HttpResponse res = makeRequest(ctx, deviceRegID,
 							REGISTER_PATH);
+
+					if (res.getStatusLine().getStatusCode() == 200) 
+					{
+						SharedPreferences.Editor prefseditor = Prefs.get(ctx)
+								.edit();
+						prefseditor.putString("deviceRegID", deviceRegID);
+						prefseditor.commit();
+						updateUI.putExtra(STATUS_EXTRA, REGISTERED_STATUS);
+
+					} else // Else there was a registration error
+					{
+						Log.w("AndroidFileDrop", "Registration Error");
+						updateUI.putExtra(STATUS_EXTRA, ERROR_STATUS);
+
+					}
+					updateUI.putExtra(STATUS_EXTRA, REGISTERED_STATUS);
+
+					// This gets caught by SetupActivity to resume activation
+					ctx.sendBroadcast(updateUI);
+
 				} catch (AppEngineClient.PendingAuthException pae) {
 					// ignore, this will just register at a later time
 				} catch (Exception e) {
@@ -40,29 +60,6 @@ public class CloudRegistrar {
 					updateUI.putExtra(STATUS_EXTRA, ERROR_STATUS);
 					ctx.sendBroadcast(updateUI);
 				}
-
-				// TODO Register with androidfiledrop.appspot.com
-
-				if (true) // TODO: If registration was successful, we will
-							// assume it was
-				{
-					SharedPreferences.Editor prefseditor = Prefs.get(ctx)
-							.edit();
-					prefseditor.putString("deviceRegID", deviceRegID);
-					prefseditor.commit();
-					updateUI.putExtra(STATUS_EXTRA, REGISTERED_STATUS);
-
-				} else // Else there was a registration error
-				{
-					Log.w("AndroidFileDrop", "Registration Error");
-					updateUI.putExtra(STATUS_EXTRA, ERROR_STATUS);
-
-				}
-				updateUI.putExtra(STATUS_EXTRA, REGISTERED_STATUS);
-
-				// This gets caught by SetupActivity to resume activation
-				ctx.sendBroadcast(updateUI);
-
 			}
 		}).start();
 	}

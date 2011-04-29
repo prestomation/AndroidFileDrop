@@ -2,18 +2,16 @@ import urllib
 import sys
 import authlib
 
-user = ""
-password = ""
-
+user = "USER"
+password = "PASS"
 
 if user.find("@") == -1:
     user = user + "@gmail.com"
 
 
 
-print user
 afdConn = authlib.AppEngineClient("androidfiledrop", user, password)
 
 
-avar = afdConn.uploadFile("authlib.py")
+avar = afdConn.uploadFile(sys.argv[1])
 print avar.read()

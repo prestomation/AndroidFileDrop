@@ -72,12 +72,14 @@ class AuthError(urllib2.HTTPError):
         self.args = args
         self.reason = args["Error"]
 
-def get_opener(cookiejar=None):
+def get_opener(cookiejar=None, redirect=False ):
     opener = urllib2.OpenerDirector()
     opener.add_handler(urllib2.ProxyHandler())
     opener.add_handler(urllib2.UnknownHandler())
     opener.add_handler(urllib2.HTTPHandler())
     opener.add_handler(urllib2.HTTPDefaultErrorHandler())
+    if redirect:
+        opener.add_handler(urllib2.HTTPRedirectHandler())
     opener.add_handler(urllib2.HTTPErrorProcessor())
     opener.add_handler(urllib2.HTTPSHandler())
     opener.add_handler(MultipartPostHandler.MultipartPostHandler())
@@ -101,7 +103,7 @@ def testC2DM(authtoken, c2dmRegistrationID, collapseKey):
 
     data = urllib.urlencode(values)
 
-    request = urllib2.Request("https://android.apis.google.com/c2dm/send", data, headers)
+    request = urllib2.Request("http://android.apis.google.com/c2dm/send", data, headers)
 
     # POST
 
@@ -148,7 +150,7 @@ class AppEngineClient():
             if e.reason == "CaptchaRequired":
                 logging.error( 
                     "Please go to\n"
-                    "https://www.google.com/accounts/DisplayUnlockCaptcha\n"
+                    "http://www.google.com/accounts/DisplayUnlockCaptcha\n"
                     "and verify you are a human.  Then try again.")
             if e.reason == "NotVerified":
                 logging.error( "Account not verified.")
@@ -199,10 +201,11 @@ class AppEngineClient():
         continue_location = "http://localhost/"
         args = {"continue": continue_location, "auth": auth_token}
         host = "%s.appspot.com" % appname
-        url = "https://%s/_ah/login?%s" % (host,
+        url = "http://%s/_ah/login?%s" % (host,
                                    urllib.urlencode(args))
 
-        opener = get_opener() # no redirect handler!
+        self.cookies = cookielib.CookieJar()
+        opener = get_opener(self.cookies) # no redirect handler!
         req = urllib2.Request(url)
         try:
             response = opener.open(req)
@@ -215,7 +218,7 @@ class AppEngineClient():
                     response.msg, response.headers, response.fp)
 
         cookie = response.headers.get('set-cookie')
-        assert cookie and cookie.startswith('SACSID')
+        assert cookie and cookie.startswith('ACSID')
         return cookie.replace('; HttpOnly', '')
 
 
@@ -230,7 +233,7 @@ class AppEngineClient():
         if self.dev:
             url = "http://localhost:8888/register"
         else:
-            url = "https://androidfiledrop.appspot.com/register"
+            url = "http://androidfiledrop.appspot.com/register"
 
 
 
@@ -244,7 +247,7 @@ class AppEngineClient():
         if self.dev:
             url = "http://localhost:8888/upload/geturl"
         else:
-            url = "https://androidfiledrop.appspot.com/upload/geturl"
+            url = "http://androidfiledrop.appspot.com/upload/geturl"
 
         return opener.open(url).read()
 
@@ -254,14 +257,11 @@ class AppEngineClient():
 
         uploadpath = self.getUploadUrl()
 
-        cookies = cookielib.CookieJar()
+        #cookies = cookielib.CookieJar()
         
-        cookiename = self.ahCookie.split("=")[0]
-        cookievalue = self.ahCookie.split("=")[1]
-        #print cookielib.Cookie(cookiename, cookievalue)
 
         #opener = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler) 
-        opener = get_opener(cookies)
+        opener = get_opener(self.cookies, False)
         opener.addheaders.append(('Cookie', self.ahCookie))
 
         params = { "myFile" : open(filepath, "rb")}
@@ -269,9 +269,15 @@ class AppEngineClient():
 
         try:
             returnval =opener.open(uploadpath, params)
+            print returnval.read()
         except urllib2.HTTPError, e:
+            print e.info()
+            print e.msg
+            print dir(e)
             if e.getcode() != 302:
                 raise
+
+
 
         return self.notify()
 
@@ -279,7 +285,7 @@ class AppEngineClient():
 
         opener = get_opener()
         opener.addheaders.append(('Cookie', self.ahCookie))
-        return opener.open("https://androidfiledrop.appspot.com/notify")
+        return opener.open("http://androidfiledrop.appspot.com/notify")
 
 
                     

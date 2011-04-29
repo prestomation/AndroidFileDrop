@@ -35,23 +35,22 @@ public class UploadService extends HttpServlet {
 			return;
 		}
 
-		//Create a blob upload URL
+		// Create a blob upload URL
 		BlobstoreService blobService = BlobstoreServiceFactory
 				.getBlobstoreService();
 		String uploadUrl = blobService.createUploadUrl("/upload");
 		String pathinfo = req.getPathInfo();
-		if(pathinfo != null && req.getPathInfo().equals("/geturl"))
-		{
+		if (pathinfo != null && req.getPathInfo().equals("/geturl")) {
 			resp.setContentType("text/plain");
-			//A request for "/upload/geturl" is an api for an app to easily get an upload url
+			// A request for "/upload/geturl" is an api for an app to easily get
+			// an upload url
 			resp.getWriter().write(uploadUrl);
 			return;
-		
+
 		}
-				
-				
+
 		resp.setContentType("text/html");
-		
+
 		resp.getWriter().println("<body>");
 		String status = req.getParameter("status");
 		if (status != null) {
@@ -65,7 +64,6 @@ public class UploadService extends HttpServlet {
 
 			}
 		}
-
 
 		// We print out a simple HTML upload form
 		resp.getWriter().println(
@@ -88,25 +86,36 @@ public class UploadService extends HttpServlet {
 		resp.setContentType("text/html");
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
+		BlobstoreService blobstoreService = BlobstoreServiceFactory
+				.getBlobstoreService();
+		Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(req);
 		if (user == null) {
+			log.warning("Not logged in....Deleting file");
+			BlobKey deadblobKey = blobs.get("myFile");
+			if (deadblobKey != null) {
+
+				blobstoreService.delete(deadblobKey);
+			}
 			resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
 			return;
 		}
 
-		BlobstoreService blobstoreService = BlobstoreServiceFactory
-				.getBlobstoreService();
-		Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(req);
 		BlobKey blobKey = blobs.get("myFile");
 		if (blobKey == null) {
+			log
+					.warning("Upload failed, redirection to upload with failure status");
 			resp.sendRedirect("/upload?status=failure");
 		} else {
 			if (!UserInfo.setUserFile(user, blobKey)) {
 				// This user doesn't exist. Delete what was just uploaded and
 				// alert the user
 				blobstoreService.delete(blobKey);
+				log
+						.warning("This user not have a device registered, redirection to upload with nosuchuser status");
 				resp.sendRedirect("/upload?status=nosuchuser");
 
 			}
+			log.info("File uploaded succesfully!");
 			resp.sendRedirect("/notify");
 		}
 

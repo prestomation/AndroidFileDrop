@@ -48,36 +48,41 @@ public class C2DMReceiver extends C2DMBaseReceiver {
 			Log.i("AndroidFileDrop",
 					"We are supposed to download a file called: " + filename);
 		}
-		
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD )
-		{
-			//Use Gingerbread's download manager if it is available
+
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD) {
+			// Use Gingerbread's download manager if it is available
 			SharedPreferences settings = Prefs.get(context);
 			String googAccountName = settings.getString("accountName", null);
 
-			AppEngineClient client = new AppEngineClient(context, googAccountName);
+			AppEngineClient client = new AppEngineClient(context,
+					googAccountName);
+
+			DownloadManager mgr = (DownloadManager) context
+					.getSystemService(DOWNLOAD_SERVICE);
+			String ascidCookie = "";
+			try {
+				ascidCookie = client.getASCIDCookie(false);
+			} catch (Exception e) {
+				Log.e("AndroidFileDrop", "Not able to get an Appengine Cookie");
+			}
+
+			Environment.getExternalStoragePublicDirectory(
+					Environment.DIRECTORY_DOWNLOADS).mkdirs();
+			Log.i("AndroidFileDrop", Environment
+					.getExternalStoragePublicDirectory(
+							Environment.DIRECTORY_DOWNLOADS).getPath());
+			//TODO: This cookie doesn't work :(
+			Request filedrop = new Request(Uri.parse(AppEngineClient.BASE_URL
+					.replace("https", "http")
+					+ "/download")).setTitle(
+					"AndroidFileDrop").setDescription(filename).addRequestHeader("Cookie",
+					ascidCookie).setDestinationInExternalPublicDir(
+					Environment.DIRECTORY_DOWNLOADS, filename);
 			
-			
-		DownloadManager mgr = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
-		String ascidCookie = "";
-		try {
-			ascidCookie = client.getASCIDCookie(false);
-		} catch (Exception e) {
-			Log.e("AndroidFileDrop", "Not able to get an Appengine Cookie");
-		}
-		Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
-		Log.i("AndroidFileDrop", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
-		Request filedrop = new Request( Uri.parse(AppEngineClient.BASE_URL.replace("https","http") + "/download"))
-		.setDescription("AndroidFileDrop: " + filename)
-		.addRequestHeader("Cookie", ascidCookie)
-		.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
-		
-		
-		
-		mgr.enqueue(filedrop);
+			mgr.enqueue(filedrop);
 		}
 		{
-			//TODO: Download manager for Froyo
+			// TODO: Download manager for Froyo
 		}
 
 	}
