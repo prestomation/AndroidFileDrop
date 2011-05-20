@@ -74,8 +74,8 @@ public class C2DMReceiver extends C2DMBaseReceiver {
 			//TODO: This cookie doesn't work :(
 			Request filedrop = new Request(Uri.parse(AppEngineClient.BASE_URL
 					.replace("https", "http")
-					+ "/download")).setTitle(
-					"AndroidFileDrop").setDescription(filename).addRequestHeader("Cookie",
+					+ "/download")).setDescription(
+					"AndroidFileDrop").setTitle(filename).addRequestHeader("Cookie",
 					ascidCookie).setDestinationInExternalPublicDir(
 					Environment.DIRECTORY_DOWNLOADS, filename);
 			

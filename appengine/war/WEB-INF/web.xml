@@ -55,7 +55,7 @@
 	
 	<servlet-mapping>
 		<servlet-name>downloadServlet</servlet-name>
-		<url-pattern>/download</url-pattern>
+		<url-pattern>/download/*</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

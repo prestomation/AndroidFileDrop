@@ -22,7 +22,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
 public class UploadService extends HttpServlet {
-	private static final Logger log = Logger.getLogger(UpdateTokenService.class
+	private static final Logger log = Logger.getLogger(UploadService.class
 			.getName());
 
 	@Override

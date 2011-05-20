@@ -93,8 +93,6 @@ public class UserInfo {
 
 	public static boolean setUserFile(User user, BlobKey blobkey) {
 		// Associates the blob with the given user
-		// TODO: If a file is already associated, delete the old file from the
-		// blobstore
 
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
