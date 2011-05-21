@@ -26,17 +26,26 @@
 		<servlet-name>updateTokenServlet</servlet-name>
 		<servlet-class>com.prestomation.androidfiledrop.UpdateTokenService</servlet-class>
 	</servlet>
-	
+
 	<servlet>
 		<servlet-name>uploadServlet</servlet-name>
 		<servlet-class>com.prestomation.androidfiledrop.UploadService</servlet-class>
 	</servlet>
-	
+
 	<servlet>
 		<servlet-name>downloadServlet</servlet-name>
 		<servlet-class>com.prestomation.androidfiledrop.DownloadService</servlet-class>
 	</servlet>
-
+	
+	<servlet>
+		<servlet-name>clientdownloadServlet</servlet-name>
+		<servlet-class>com.prestomation.androidfiledrop.ClientDownloadService</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>clientUploadServlet</servlet-name>
+		<servlet-class>com.prestomation.androidfiledrop.ClientUploadService</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>infoServlet</servlet-name>
@@ -49,15 +58,26 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
+		<servlet-name>clientUploadServlet</servlet-name>
+		<url-pattern>/admin/clientupload</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet-mapping>
 		<servlet-name>uploadServlet</servlet-name>
 		<url-pattern>/upload/*</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet-mapping>
 		<servlet-name>downloadServlet</servlet-name>
 		<url-pattern>/download/*</url-pattern>
 	</servlet-mapping>
-
+	
+	<servlet-mapping>
+		<servlet-name>clientdownloadServlet</servlet-name>
+		<url-pattern>/client/*</url-pattern>
+	</servlet-mapping>
+	
 	<servlet-mapping>
 		<servlet-name>registerServlet</servlet-name>
 		<url-pattern>/register</url-pattern>
