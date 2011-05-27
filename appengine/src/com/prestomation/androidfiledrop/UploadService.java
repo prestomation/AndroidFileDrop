@@ -35,6 +35,13 @@ public class UploadService extends HttpServlet {
 			return;
 		}
 
+		if (UserInfo.getUserDevice(user) == null)
+		{
+			resp.setContentType("text/plain");
+			resp.getWriter().write("Please run AndroidFileDrop on your mobile device first");
+			return;
+		
+		}
 		// Create a blob upload URL
 		BlobstoreService blobService = BlobstoreServiceFactory
 				.getBlobstoreService();
