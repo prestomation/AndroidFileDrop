@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 
+
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
@@ -141,13 +142,29 @@ public class UserInfo {
 	public static String getUserFileName(User user){
 		
 		BlobInfoFactory blobinfofac = new BlobInfoFactory();
-		BlobInfo blobinfo = blobinfofac.loadBlobInfo(getUserFile(user));
+		BlobKey key = getUserFile(user);
+		if (key == null){
+			return null;
+		}
+		BlobInfo blobinfo = blobinfofac.loadBlobInfo(key);
 		if (blobinfo == null)
 		{
 			//User does not have a file
 			return null;
 		}
-		return blobinfo.getFilename();
+		String fullFilename = blobinfo.getFilename();
+		String filename;
+		if(fullFilename.contains("\\") || fullFilename.contains("/"))
+		{
+			String[] parts =  fullFilename.replace("\\", "/").split("/");
+			filename = parts[parts.length-1];
+			
+		}
+		else
+		{
+			filename = fullFilename;
+		}
+		return filename;
 	}
 	public static void clearUserFile(User user) {
 

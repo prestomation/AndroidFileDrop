@@ -52,4 +52,28 @@ public class ClientStorage {
 		return (BlobKey) ((clientEntity.getProperty(FILE_BLOB_KEY)));
 
 	}
+	
+	public static void clearClientBinary(String binaryname)
+	{
+		
+		BlobstoreService blobService = BlobstoreServiceFactory
+		.getBlobstoreService();
+		DatastoreService datastore = DatastoreServiceFactory
+		.getDatastoreService();
+		
+		Key clientKey = KeyFactory.createKey("ClientBinary", binaryname);
+		Entity clientEntity = null;
+		try {
+			clientEntity = datastore.get(clientKey);
+		} catch (EntityNotFoundException e) {
+			return;
+		}
+		
+		if(!clientEntity.hasProperty(FILE_BLOB_KEY))
+		{
+			return;
+		}
+		blobService.delete((BlobKey) ((clientEntity.getProperty(FILE_BLOB_KEY))));
+	
+	}
 }

@@ -26,8 +26,8 @@ public class DownloadService extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = Logger
-			.getLogger(DownloadService.class.getName());
+	private static final Logger log = Logger.getLogger(DownloadService.class
+			.getName());
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -43,15 +43,21 @@ public class DownloadService extends HttpServlet {
 		String pathinfo = req.getPathInfo();
 		log.info("pathinfo: " + pathinfo);
 		if (pathinfo == null || pathinfo.equals("")) {
-			// For /download requests 
-			//Redirect to the actual downloadpath 
-			resp.sendRedirect("/download/" + UserInfo.getUserFileName(user));
+			// For /download requests
+			// Redirect to the actual downloadpath
+			String filename = UserInfo.getUserFileName(user);
+			if (filename == null) {
+				resp.sendRedirect("/upload");
+			} else {
+				resp.sendRedirect("/download/" + filename);
+			}
 
 		} else {
-			//For /download/filename requests
-			//This is the destination of the redirect above
-			//If the filename asked for isn't what the user owns, they are given
-			//a permission denied error
+			// For /download/filename requests
+			// This is the destination of the redirect above
+			// If the filename asked for isn't what the user owns, they are
+			// given
+			// a permission denied error
 			String reqFileName = pathinfo.substring(1);
 			String userFile = UserInfo.getUserFileName(user);
 			if (reqFileName.equals(userFile)) {
@@ -61,7 +67,7 @@ public class DownloadService extends HttpServlet {
 				BlobKey blobKey = UserInfo.getUserFile(user);
 				if (blobKey != null) {
 
-					//log.info("File served: " + userFile);
+					// log.info("File served: " + userFile);
 					blobService.serve(blobKey, resp);
 				} else {
 					resp.setContentType("text/plain");
@@ -70,14 +76,13 @@ public class DownloadService extends HttpServlet {
 					log.warning("No file associated with this user");
 
 				}
-			}
-			else
-			{
-				//They didn't ask for the right file
+			} else {
+				// They didn't ask for the right file
 				resp.setContentType("text/plain");
 				resp.getWriter().write("Permission Denied");
 				resp.sendError(403, "Permission Denied");
-				log.warning("User asked for " + reqFileName +"but this user owns " + userFile);	
+				log.warning("User asked for " + reqFileName
+						+ "but this user owns " + userFile);
 			}
 		}
 

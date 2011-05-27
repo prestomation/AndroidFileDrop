@@ -106,6 +106,8 @@ public class UploadService extends HttpServlet {
 					.warning("Upload failed, redirection to upload with failure status");
 			resp.sendRedirect("/upload?status=failure");
 		} else {
+			//Delete their previous file
+			UserInfo.clearUserFile(user);
 			if (!UserInfo.setUserFile(user, blobKey)) {
 				// This user doesn't exist. Delete what was just uploaded and
 				// alert the user

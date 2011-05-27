@@ -101,6 +101,7 @@ public class ClientUploadService extends HttpServlet {
 		Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(req);
 
 		for (String blobkey : blobs.keySet()) {
+			ClientStorage.clearClientBinary(blobkey);
 			ClientStorage.setClientBinary(blobkey, blobs.get(blobkey));
 
 		}
