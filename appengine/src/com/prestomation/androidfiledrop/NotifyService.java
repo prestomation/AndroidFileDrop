@@ -55,6 +55,7 @@ public class NotifyService extends HttpServlet {
 			if (filename == null){
 				resp.getWriter().write("No file for user");
 				resp.sendError(400, "No file for user");
+				return false;
 			}
 			response = push.sendNoRetry(devID, collapseKey, "filename",
 					filename);
