@@ -30,15 +30,16 @@ public class DownloadCompleteReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-
+		Log.i("AndroidFileDrop", "DowloadCompleteReceiver.onReceive");
 		SharedPreferences prefs = Prefs.get(context);
 		String filename = prefs.getString(DM_DOWNLOAD_NAME, "dummyfilename");
 		Long fileID = prefs.getLong(DM_DOWNLOAD_ID, 0);
 
 		Long incomingId = intent.getLongExtra(
 				DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-		if (fileID != incomingId) {
+		if (!fileID.equals(incomingId)) {
 			// Not our file, ignore
+			Log.i("AndroidFileDrop", "not our fileID: " + incomingId + " should be: " + fileID);
 
 			return;
 		}
@@ -99,6 +100,8 @@ public class DownloadCompleteReceiver extends BroadcastReceiver {
 				pendingIntent);
 		downloadNotification.flags = Notification.FLAG_AUTO_CANCEL;
 
-		notifyManager.notify(1, downloadNotification);
+		notifyManager.notify(2, downloadNotification);
+		Log.i("AndroidFileDrop", "Download done and notified");
+		
 	}
 }

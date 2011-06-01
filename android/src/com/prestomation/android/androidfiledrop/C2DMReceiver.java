@@ -64,43 +64,54 @@ public class C2DMReceiver extends C2DMBaseReceiver {
 		}
 
 		playNotificationSound(context);
+		SharedPreferences settings = Prefs.get(context);
+		String googAccountName = settings.getString("accountName", null);
+
+		AppEngineClient client = new AppEngineClient(context, googAccountName);
+		String ascidCookie = "";
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD) {
+
 			// Use Gingerbread's download manager if it is available
-			SharedPreferences settings = Prefs.get(context);
-			String googAccountName = settings.getString("accountName", null);
 
-			AppEngineClient client = new AppEngineClient(context,
-					googAccountName);
-
-			DownloadManager mgr = (DownloadManager) context
-					.getSystemService(DOWNLOAD_SERVICE);
-			String ascidCookie = "";
 			try {
 				ascidCookie = client.getASCIDCookie(false);
 			} catch (Exception e) {
 				Log.e("AndroidFileDrop", "Not able to get an Appengine Cookie");
 			}
 
-			
-			
+			DownloadManager mgr = (DownloadManager) context
+					.getSystemService(DOWNLOAD_SERVICE);
+
 			Environment.getExternalStoragePublicDirectory(
 					Environment.DIRECTORY_DOWNLOADS).mkdirs();
 			Request filedrop = new Request(Uri.parse(AppEngineClient.BASE_URL
 					.replace("https", "http")
-					+ "/download")).setDescription(
-					"AndroidFileDrop").setTitle(filename).addRequestHeader(
-					"Cookie", ascidCookie).setDestinationInExternalPublicDir(
-					Environment.DIRECTORY_DOWNLOADS, filename);
+					+ "/download")).setDescription("AndroidFileDrop").setTitle(
+					filename).addRequestHeader("Cookie", ascidCookie)
+					.setDestinationInExternalPublicDir(
+							Environment.DIRECTORY_DOWNLOADS, filename);
 
 			long id = mgr.enqueue(filedrop);
 			SharedPreferences.Editor prefsEdit = Prefs.get(context).edit();
-
+			Log.i("AndroidFileDrop", "saving ID: " + id);
 			prefsEdit.putLong(DM_DOWNLOAD_ID, id);
 			prefsEdit.putString(DM_DOWNLOAD_NAME, filename);
 			prefsEdit.commit();
 		}
+		else
 		{
-			// TODO: Download manager for Froyo
+			
+			//Otherwise, use our crappy download manager
+
+			try {
+				ascidCookie = client.getASCIDCookie(false);
+			} catch (Exception e) {
+				Log.e("AndroidFileDrop", "Not able to get an Appengine Cookie");
+			}
+			Intent froyoIntent = new Intent(context, DownloadService.class);
+			froyoIntent.putExtra("filename", filename);
+			froyoIntent.putExtra("ascid", ascidCookie);
+			context.startService(froyoIntent);
 		}
 
 	}
