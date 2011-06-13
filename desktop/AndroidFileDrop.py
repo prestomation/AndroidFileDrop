@@ -15,7 +15,7 @@ import authlib
 from PySide import  QtCore, QtGui
  
 class AuthDialog(QtGui.QDialog):
-    def __init__(self, app,filename):
+    def __init__(self, app,filename, authtoken):
         super(AuthDialog, self).__init__(None)
 
         if filename is None:
@@ -29,6 +29,8 @@ class AuthDialog(QtGui.QDialog):
 
         passwordLabel = QtGui.QLabel("Password:")
         self.passwordInput = QtGui.QLineEdit()
+
+        self.authtoken = authtoken
 
         self.passwordInput.setEchoMode(self.passwordInput.Password)
         self.busyBar = QtGui.QProgressBar()
@@ -103,7 +105,9 @@ filename = None
 if len(sys.argv) >= 2:
     filename = sys.argv[1]
 
-authdialog = AuthDialog(app,filename)
+settings = QtCore.QSettings("AndroidFileDrop", "Prestomation")
+authtoken = settings.value("authtoken",None)
+authdialog = AuthDialog(app,filename, authtoken)
 # Enter Qt application main loop
 authdialog.exec_()
 sys.exit()

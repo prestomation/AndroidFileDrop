@@ -201,7 +201,7 @@ class AppEngineClient():
         continue_location = "http://localhost/"
         args = {"continue": continue_location, "auth": auth_token}
         host = "%s.appspot.com" % appname
-        url = "http://%s/_ah/login?%s" % (host,
+        url = "https://%s/_ah/login?%s" % (host,
                                    urllib.urlencode(args))
 
         self.cookies = cookielib.CookieJar()
@@ -218,7 +218,7 @@ class AppEngineClient():
                     response.msg, response.headers, response.fp)
 
         cookie = response.headers.get('set-cookie')
-        assert cookie and cookie.startswith('ACSID')
+        assert cookie and cookie.startswith('SACSID')
         return cookie.replace('; HttpOnly', '')
 
 
@@ -245,9 +245,9 @@ class AppEngineClient():
         opener.addheaders.append(('Cookie', self.ahCookie))
 
         if self.dev:
-            url = "http://localhost:8888/upload/geturl"
+            url = "https://localhost:8888/upload/geturl"
         else:
-            url = "http://androidfiledrop.appspot.com/upload/geturl"
+            url = "https://androidfiledrop.appspot.com/upload/geturl"
 
         return opener.open(url).read()
 
@@ -281,7 +281,7 @@ class AppEngineClient():
 
         opener = get_opener()
         opener.addheaders.append(('Cookie', self.ahCookie))
-        return opener.open("http://androidfiledrop.appspot.com/notify")
+        return opener.open("https://androidfiledrop.appspot.com/notify")
 
 
                     
