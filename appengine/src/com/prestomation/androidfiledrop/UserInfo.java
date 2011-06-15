@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-
-
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
@@ -31,11 +29,23 @@ public class UserInfo {
 		// Users are stored in bigtable using their UUID as a key. their
 		// nickname is stored(mostly for admin ease of use) along with the C2DM
 		// reg key
-		Entity userEntry = new Entity("User", user.getUserId());
-		userEntry.setProperty(DEVICE_ID, regID);
-		userEntry.setProperty("Nickname", user.getEmail());
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
+		Entity userEntry;
+		Key userKey = KeyFactory.createKey("User", user.getUserId());
+		try {
+
+			// If they already exist, pull the existing record out so we don't
+			// lose track of old files
+			userEntry = datastore.get(userKey);
+		} catch (EntityNotFoundException e) {
+			userEntry = new Entity(userKey);
+
+		}
+
+		userEntry.setProperty(DEVICE_ID, regID);
+		userEntry.setProperty("Nickname", user.getEmail());
+
 		datastore.put(userEntry);
 		log.info("Added user: " + user.getEmail());
 	}
@@ -132,40 +142,36 @@ public class UserInfo {
 		} catch (EntityNotFoundException e) {
 			return null;
 		}
-		if(!userEntity.hasProperty(FILE_BLOB_KEY))
-		{
+		if (!userEntity.hasProperty(FILE_BLOB_KEY)) {
 			return null;
 		}
 		return (BlobKey) ((userEntity.getProperty(FILE_BLOB_KEY)));
 	}
 
-	public static String getUserFileName(User user){
-		
+	public static String getUserFileName(User user) {
+
 		BlobInfoFactory blobinfofac = new BlobInfoFactory();
 		BlobKey key = getUserFile(user);
-		if (key == null){
+		if (key == null) {
 			return null;
 		}
 		BlobInfo blobinfo = blobinfofac.loadBlobInfo(key);
-		if (blobinfo == null)
-		{
-			//User does not have a file
+		if (blobinfo == null) {
+			// User does not have a file
 			return null;
 		}
 		String fullFilename = blobinfo.getFilename();
 		String filename;
-		if(fullFilename.contains("\\") || fullFilename.contains("/"))
-		{
-			String[] parts =  fullFilename.replace("\\", "/").split("/");
-			filename = parts[parts.length-1];
-			
-		}
-		else
-		{
+		if (fullFilename.contains("\\") || fullFilename.contains("/")) {
+			String[] parts = fullFilename.replace("\\", "/").split("/");
+			filename = parts[parts.length - 1];
+
+		} else {
 			filename = fullFilename;
 		}
 		return filename;
 	}
+
 	public static void clearUserFile(User user) {
 
 		// Clear the blobproperty and destroy the associated blob for a
@@ -189,9 +195,6 @@ public class UserInfo {
 		datastore.put(userEntity);
 
 	}
-	
-	
-	
 
 	private static void destroyBlobFile(BlobKey key) {
 		BlobstoreService blobService = BlobstoreServiceFactory
