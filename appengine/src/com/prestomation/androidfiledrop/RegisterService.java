@@ -27,11 +27,20 @@ public class RegisterService extends HttpServlet {
 		resp.setContentType("text/plain");
 
 		String deviceRegistrationId = req.getParameter("devregid");
+		String deviceName = req.getParameter("devname");
+		
 		if (deviceRegistrationId == null
 				|| "".equals(deviceRegistrationId.trim())) {
 			resp.setStatus(400);
 			resp.getWriter().println(ERROR_STATUS + "(Must specify devregid)");
 			log.severe("Missing registration id ");
+			return;
+		}
+		if (deviceName == null
+				|| "".equals(deviceName.trim())) {
+			resp.setStatus(400);
+			resp.getWriter().println(ERROR_STATUS + "(Must specify devname)");
+			log.severe("Missing device id ");
 			return;
 		}
 		
@@ -45,7 +54,7 @@ public class RegisterService extends HttpServlet {
 		else
 		{
 			//We have a user
-			UserInfo.setUserDevice(user, deviceRegistrationId);
+			UserInfo.setUserDevice(user, deviceName, deviceRegistrationId);
 			resp.getWriter().println(OK_STATUS);
 			
 			

@@ -21,11 +21,12 @@ import com.google.appengine.api.users.User;
 public class UserInfo {
 
 	static String DEVICE_ID = "DeviceID";
+	static String DEVICE_NAME = "DeviceName";
 	static String FILE_BLOB_KEY = "FileBlobKey";
 	private static final Logger log = Logger
 			.getLogger(UserInfo.class.getName());
 
-	public static void setUserDevice(User user, String regID) {
+	public static void setUserDevice(User user, String deviceName, String regID) {
 		// Users are stored in bigtable using their UUID as a key. their
 		// nickname is stored(mostly for admin ease of use) along with the C2DM
 		// reg key
@@ -44,6 +45,7 @@ public class UserInfo {
 		}
 
 		userEntry.setProperty(DEVICE_ID, regID);
+		userEntry.setProperty(DEVICE_NAME, deviceName);
 		userEntry.setProperty("Nickname", user.getEmail());
 
 		datastore.put(userEntry);
