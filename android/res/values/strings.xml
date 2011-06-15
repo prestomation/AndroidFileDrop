@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="hello">Hello World, SetupActivity!</string>
-	<string name="options_greeting">AndroidFileDropTest! is configured. Please visit
+	<string name="options_greeting">AndroidFileDrop is configured. Please visit
 		androidfiledrop.appspot.com for uploading methods!</string>
 	<string name="app_name">AndroidFileDrop</string>
 	<string name="select_account">Please select the account to use:</string>

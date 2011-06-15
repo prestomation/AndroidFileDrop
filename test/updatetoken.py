@@ -6,20 +6,20 @@ import authlib
 
 
 
-token = authlib.get_google_authtoken("androidfiledroptest", "ac2dm", "droidfiledrop@gmail.com", sys.argv[1])
+token = authlib.get_google_authtoken("androidfiledrop", "ac2dm", "droidfiledrop@gmail.com", sys.argv[1])
 print "c2dmtoken is: " + token
 
-afdConn = authlib.AppEngineClient("androidfiledroptest", "droidfiledrop@gmail.com", sys.argv[1])
+afdConn = authlib.AppEngineClient("androidfiledrop", "droidfiledrop@gmail.com", sys.argv[1])
 
-print "appengine cookie is: " + afdConn.ahCookie
+print "appengine token is: " + afdConn.ahToken
 
 opener = authlib.get_opener()
-opener.addheaders.append(('Cookie', afdConn.ahCookie))
+opener.addheaders.append(('Cookie', afdConn.ahToken))
 data = {}
 data['token'] = token
 
 params = urllib.urlencode(data) 
-url = "http://androidfiledroptest.appspot.com/admin/updatetoken"
+url = "https://androidfiledrop.appspot.com/admin/updatetoken"
 
 
 
