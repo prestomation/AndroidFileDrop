@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load filetransfers %}
+{% block title %}Upload file to Blobstore{% endblock %}
+
+{% block content %}
+<h1>Upload</h1>
+<form action="{{ upload_url }}" method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% render_upload_data upload_data %}
+  <table>{{ form }}</table>
+  <input type="submit" value="Upload" />
+</form>
+
+{% endblock %}
