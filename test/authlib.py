@@ -223,29 +223,39 @@ class AppEngineClient():
 
 
 
-    def registerDevice(self, devID):
+    def registerDevice(self, devID, deviceName):
         opener = get_opener()
         opener.addheaders.append(('Cookie', self.ahCookie))
         data = {}
-        data['devregid'] = devID
+        data['deviceRegID'] = devID
+        data['nickname']  = deviceName
         
         params = urllib.urlencode(data) 
         if self.dev:
-            url = "http://localhost:8888/register"
+            url = "http://localhost:8000/api/devices"
         else:
-            url = "http://androidfiledrop.appspot.com/register"
+            url = "http://androidfiledrop.appspot.com/devices"
 
 
 
         f = opener.open(url, params)
         return f
+    
+    def getDevices(self):
+        opener = get_opener()
+        opener.addheaders.append(('Cookie', self.ahCookie))
+        if self.dev:
+            url = "http://localhost:8000/api/devices"
+        f = opener.open(url)
+        return f
+    
 
     def getUploadUrl(self):
         opener = get_opener()
         opener.addheaders.append(('Cookie', self.ahCookie))
 
         if self.dev:
-            url = "http://localhost:8888/upload/geturl"
+            url = "http://localhost:8000/upload/geturl"
         else:
             url = "http://androidfiledrop.appspot.com/upload/geturl"
 
