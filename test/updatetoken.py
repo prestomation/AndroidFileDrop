@@ -16,7 +16,9 @@ print "appengine cookie is: " + afdConn.ahCookie
 opener = authlib.get_opener()
 opener.addheaders.append(('Cookie', afdConn.ahCookie))
 data = {}
-data['token'] = token
+data['id_user'] = "droidfiledrop@gmail.com"
+data['id_authtoken'] = token
+data['id_password'] =  sys.argv[1]
 
 params = urllib.urlencode(data) 
 url = "http://androidfiledroptest.appspot.com/admin/updatetoken"

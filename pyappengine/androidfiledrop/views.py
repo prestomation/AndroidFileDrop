@@ -20,8 +20,7 @@ class RequireGAEAuth(object):
         user = users.get_current_user()
         if not user:
             #make them login
-            print "no user"
-            return HttpResponse("Someone forgot to login")
+            return HttpResponseRedirect(users.create_login_url(request.get_full_path()))
         else:
             return self.func(user, request, kwargs)
 
@@ -35,8 +34,7 @@ class RequireAFDUser(object):
         user = users.get_current_user()
         if not user:
             #make them login
-            print "no user"
-            return HttpResponse("Someone forgot to login")
+            return HttpResponseRedirect(users.create_login_url(request.get_full_path()))
         else:
             try:
                 user = User.objects.get(userid = user.user_id())
@@ -103,16 +101,8 @@ from filetransfers.api import prepare_upload, serve_file
 @RequireAFDUser
 def files(currentuser, request, params):
     """Upload and download files"""
-    
-    
-    if params.has_key('filename'):
-        filename = params['filename']
-    else:
-        filename = None
-
+    filename = params.get('filename', None)
     if request.method == "GET":
-
-    
         try:
             upload = File.objects.get(user = currentuser)
         except File.DoesNotExist:
@@ -126,9 +116,10 @@ def files(currentuser, request, params):
 
     elif request.method == "POST":
         form = UploadForm(request.POST, request.FILES)
-        #if form.is_valid():
-         #   form.save()
-        return HttpResponseRedirect(reverse('androidfiledrop.views.notify'))
+        if form.is_valid():
+            newfile = File(user = currentuser, file = form.cleaned_data['file']) 
+            newfile.save()
+        return HttpResponseRedirect(reverse('androidfiledrop.views.upload'))
 
 
 @RequireAFDUser
@@ -139,22 +130,30 @@ def upload(currentuser, request, params):
     upload_url, upload_data = prepare_upload(request, view_url)
     return direct_to_template(request, "api/upload.html", {'form' : form, 'upload_url' : upload_url, 'upload_data' : upload_data})
 
+@RequireAFDUser
+def uploadurl(currentuser, request, params):
+    view_url = reverse(files)
+    upload_url, upload_data = prepare_upload(request, view_url)
+    return HttpResponse(upload_url)
+
 from .models import C2DMInfo
 import urllib
 import urllib2
 
 @RequireAFDUser
 def notify(currentuser, request, params):
-
     try:
-        devID = Device.objects.get(user= currentuser, nickname = params['devname'])
+        devID = Device.objects.get(user= currentuser, nickname = params['devname']).deviceid
     except Device.DoesNotExist:
         return HttpResponseNotFound("No such device")
 
     logging.info("User %s notifying device %s" % (currentuser.nickname, devID))
-    filename = File.objects.get(user=currentuser).filename
-    authtoken = C2DMInfo.objects.get(user="droidfiledrop@gmail.com").authtoken
+    try:
+        filename = File.objects.get(user=currentuser).filename
+    except File.DoesNotExist:
+        return HttpResponseNotFound("You don't have a file!")
 
+    authtoken = C2DMInfo.objects.get(user="droidfiledrop@gmail.com").authtoken
 
     values = {
             'registration_id' : devID,
@@ -162,7 +161,7 @@ def notify(currentuser, request, params):
             'File' : "filename"
             }
     body = urllib.urlencode(values)
-    request = urllib2.Request('https://android.apis.google.com/c2dm/send', body)
+    request = urllib2.Request('http://android.clients.google.com/c2dm/send', body)
     request.add_header('Authorization', 'GoogleLogin auth=' + authtoken)
 
     response = urllib2.urlopen(request)

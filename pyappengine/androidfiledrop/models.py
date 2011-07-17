@@ -26,7 +26,7 @@ class Device(models.Model):
         return self.nickname
 
     class Meta:
-        unique_together = ("user", "nickname")
+        unique_together = (("user", "nickname"),)
 
 
 class File(models.Model):
