@@ -4,14 +4,14 @@ import authlib
 
 
 ACCOUNT_EMAIL= 'droidfiledrop@gmail.com'
-ACCOUNT_PASS = "androidfiledrop"
+ACCOUNT_PASS = ""
 
-C2DM_ID = "APA91bG_wjhPPoM1SHfNWE-yWs2sUCiHEv0osbDx2xv1hlayuu6hS6iW3gqb_MT9ISAof1uRAypQQ2B55zMoJVzp6omEPs7RYwpGoXpA9bnuQ_b4VVI0q2wVRV3X1S_CR9qRw6hhtfAJ"
+C2DM_ID = "APA91bEonT6sDi3s5k82VGSgGHb6vxUE6TjSyPiHD6c9qJS3OK1p4wretjOzW6M35W2agNqW2U6NX147xGyjRZOPVuvkd_cohFU9hwqoyliPGyqmwpSqBnIMWlf52W9IssS26Cgq6421"
 
 
 c2dmtoken = authlib.get_google_authtoken("androidfiledrop", "ac2dm", ACCOUNT_EMAIL, ACCOUNT_PASS)
 print c2dmtoken
 
 #uncomment to send c2dm message
-#print authlib.testC2DM(c2dmtoken, C2DM_ID, "something")
+print authlib.testC2DM(c2dmtoken, C2DM_ID, "something")
 

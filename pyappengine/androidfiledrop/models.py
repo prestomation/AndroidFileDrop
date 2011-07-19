@@ -20,13 +20,14 @@ class User(models.Model):
 class Device(models.Model):
     user = models.ForeignKey(User)
     nickname = models.CharField(max_length=64)
-    deviceid = models.CharField(max_length=200, unique=True)
+    c2dmid = models.CharField(max_length=300, unique=True)
+    deviceid = models.CharField(max_length=128, unique=True)
 
     def natural_key(self):
         return self.nickname
 
     class Meta:
-        unique_together = (("user", "nickname"),)
+        unique_together = (("user", "nickname"), ("user", "deviceid"))
 
 
 class File(models.Model):

@@ -1,23 +1,9 @@
 package com.prestomation.android.androidfiledrop;
 
-import java.io.FileNotFoundException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import android.app.DownloadManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.DownloadManager.Query;
 import android.app.DownloadManager.Request;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.Ringtone;
@@ -26,9 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.Gravity;
-import android.webkit.DownloadListener;
-import android.widget.Toast;
 
 import com.google.android.c2dm.C2DMBaseReceiver;
 
@@ -44,7 +27,9 @@ public class C2DMReceiver extends C2DMBaseReceiver {
 	@Override
 	public void onRegistered(Context ctx, String registration) {
 		Log.i("AndroidFileDrop", "registered and got key: " + registration);
-		CloudRegistrar.registerWithCloud(ctx, registration);
+		SharedPreferences settings = Prefs.get(ctx);
+		String nickname = settings.getString(SetupActivity.PREF_DEVICE_NICKNAME, "myDevice");
+		CloudRegistrar.registerWithCloud(ctx, nickname, registration);
 	}
 
 	@Override
@@ -56,11 +41,21 @@ public class C2DMReceiver extends C2DMBaseReceiver {
 	protected void onMessage(Context context, Intent intent) {
 		Log.i("AndroidFileDrop", "Received a message! ");
 		Bundle extras = intent.getExtras();
-		String filename = "File";
+		String filename = "";
 		if (extras != null) {
 			filename = (String) extras.get("filename");
+			if (filename == null)
+			{
+			Log.i("AndroidFileDrop",
+					"No filename attached!") ;
+				return;
+			}
 			Log.i("AndroidFileDrop",
 					"We are supposed to download a file called: " + filename);
+		}
+		if (filename == "")
+		{
+			return;
 		}
 
 		playNotificationSound(context);
@@ -86,7 +81,7 @@ public class C2DMReceiver extends C2DMBaseReceiver {
 					Environment.DIRECTORY_DOWNLOADS).mkdirs();
 			Request filedrop = new Request(Uri.parse(AppEngineClient.BASE_URL
 					.replace("https", "http")
-					+ "/download")).setDescription("AndroidFileDrop").setTitle(
+					+ "/api/files/" + filename)).setDescription("AndroidFileDrop").setTitle(
 					filename).addRequestHeader("Cookie", ascidCookie)
 					.setDestinationInExternalPublicDir(
 							Environment.DIRECTORY_DOWNLOADS, filename);

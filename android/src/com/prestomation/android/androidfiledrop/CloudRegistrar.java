@@ -11,11 +11,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class CloudRegistrar {
 
-	public static final String REGISTER_PATH = "/register";
+	public static final String REGISTER_PATH = "/api/devices";
 	public static final String STATUS_EXTRA = "Status";
 	public static final int REGISTERED_STATUS = 1;
 	public static final int AUTH_ERROR_STATUS = 2;
@@ -25,12 +26,15 @@ public class CloudRegistrar {
 	static final String EMAIL_ID = "droidfiledrop@gmail.com";
 
 	public static void registerWithCloud(final Context ctx,
-			final String deviceRegID) {
+			final String nickname, final String deviceRegID) {
 		new Thread(new Runnable() {
 			public void run() {
 				Intent updateUI = new Intent(SetupActivity.UPDATE_UI_ACTION);
 				try {
-					HttpResponse res = makeRequest(ctx, deviceRegID,
+					String uuid = Secure.getString(ctx.getContentResolver(),
+                            Secure.ANDROID_ID); 
+					
+					HttpResponse res = makeRequest(ctx, deviceRegID, nickname, uuid,
 							REGISTER_PATH);
 
 					if (res.getStatusLine().getStatusCode() == 200) 
@@ -64,12 +68,15 @@ public class CloudRegistrar {
 		}).start();
 	}
 
-	private static HttpResponse makeRequest(Context ctx, String deviceRegID,
+	private static HttpResponse makeRequest(Context ctx, String deviceRegID, String devnickname, String uuid,
 			String urlPath) throws Exception {
 		SharedPreferences settings = Prefs.get(ctx);
 		String googAccountName = settings.getString("accountName", null);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("devregid", deviceRegID));
+		params.add(new BasicNameValuePair("deviceRegID", deviceRegID));
+		params.add(new BasicNameValuePair("nickname", devnickname));
+		Log.w("AndroidFileDrop", "uuid: " + uuid);
+		params.add(new BasicNameValuePair("devid", uuid));
 
 		AppEngineClient client = new AppEngineClient(ctx, googAccountName);
 		return client.makeRequest(urlPath, params);

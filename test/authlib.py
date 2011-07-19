@@ -167,8 +167,10 @@ class AppEngineClient():
                 logging.error( "The service is not available; try again later.")
             raise
 
+        print "Got auth token", auth_token
         # now get the cookie
         cookie = self.get_gae_cookie(appname, auth_token)
+        print "Got cookie ", cookie
         assert cookie
         return cookie
 
@@ -218,7 +220,7 @@ class AppEngineClient():
                     response.msg, response.headers, response.fp)
 
         cookie = response.headers.get('set-cookie')
-        assert cookie and cookie.startswith('ACSID')
+        assert cookie and (cookie.startswith('ACSID') or cookie.startswith('SACSID'))
         return cookie.replace('; HttpOnly', '')
 
 
@@ -229,12 +231,13 @@ class AppEngineClient():
         data = {}
         data['deviceRegID'] = devID
         data['nickname']  = deviceName
+        data['devid'] = "Evo"
         
         params = urllib.urlencode(data) 
         if self.dev:
             url = "http://localhost:8000/api/devices"
         else:
-            url = "http://androidfiledrop.appspot.com/devices"
+            url = "http://androidfiledroptest.appspot.com/api/devices"
 
 
 
@@ -246,6 +249,8 @@ class AppEngineClient():
         opener.addheaders.append(('Cookie', self.ahCookie))
         if self.dev:
             url = "http://localhost:8000/api/devices"
+        else:
+            url = "http://androidfiledroptest.appspot.com/api/devices"
         f = opener.open(url)
         return f
     
@@ -257,7 +262,7 @@ class AppEngineClient():
         if self.dev:
             url = "http://localhost:8000/upload/geturl"
         else:
-            url = "http://androidfiledrop.appspot.com/upload/geturl"
+            url = "http://androidfiledroptest.appspot.com/upload/geturl"
 
         return opener.open(url).read()
 
@@ -295,7 +300,7 @@ class AppEngineClient():
 
         opener = get_opener()
         opener.addheaders.append(('Cookie', self.ahCookie))
-        return opener.open("http://androidfiledrop.appspot.com/notify")
+        return opener.open("http://androidfiledroptest.appspot.com/notify")
 
 
                     

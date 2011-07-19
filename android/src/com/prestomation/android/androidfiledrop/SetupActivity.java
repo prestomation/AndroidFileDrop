@@ -2,58 +2,52 @@ package com.prestomation.android.androidfiledrop;
 
 import java.util.ArrayList;
 
-import android.R.layout;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
+import android.text.Editable;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import com.google.android.c2dm.C2DMessaging;
 
 public class SetupActivity extends Activity {
 	public static final String UPDATE_UI_ACTION = "com.prestomation.android.androidfiledrop.UPDATE_UI";
 	public static final String AUTH_PERMISSION_ACTION = "com.prestomation.android.androidfiledrop.AUTH_PERMISSION";
+	public static final String PREF_SCREEN_ID = "savedScreenId";
+	public static final String PREF_DEVICE_NICKNAME = "deviceNickname";
 	public static final String TAG = "AndroidFileDrop";
 
 	private boolean mPendingAuth = false;
 	private int mScreenId = -1;
 	private int mAccountSelectedPosition = 0;
+	private String mNickname = null;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		int savedScreenId = Prefs.get(this).getInt("savedScreenId",
-				R.layout.accountselection);
+		int savedScreenId = Prefs.get(this).getInt(PREF_SCREEN_ID, R.layout.accountselection);
 
 		setScreenContent(savedScreenId);
 
 		registerReceiver(UpdateUIReceiver, new IntentFilter(UPDATE_UI_ACTION));
-		registerReceiver(AuthPermissionReceiver, new IntentFilter(
-				AUTH_PERMISSION_ACTION));
+		registerReceiver(AuthPermissionReceiver, new IntentFilter(AUTH_PERMISSION_ACTION));
+		mNickname = Prefs.get(this).getString(PREF_DEVICE_NICKNAME, android.os.Build.MODEL);
 
 	}
 
@@ -68,10 +62,11 @@ public class SetupActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		if (mPendingAuth) {
+			Log.i(TAG, "mPendingAuth is TRUE!");
 			mPendingAuth = false;
 			String regID = C2DMessaging.getRegistrationId(this);
 			if (regID != null && !regID.equals("")) {
-				CloudRegistrar.registerWithCloud(this, regID);
+				CloudRegistrar.registerWithCloud(this, mNickname, regID);
 			} else {
 				C2DMessaging.register(this, CloudRegistrar.EMAIL_ID);
 			}
@@ -100,7 +95,7 @@ public class SetupActivity extends Activity {
 		}
 
 		SharedPreferences.Editor editor = Prefs.get(this).edit();
-		editor.putInt("savedScreenId", screenId);
+		editor.putInt(PREF_SCREEN_ID, screenId);
 		editor.commit();
 
 	}
@@ -139,17 +134,14 @@ public class SetupActivity extends Activity {
 			public void onClick(View v) {
 				ListView listview = (ListView) findViewById(R.id.AccountSelectlistView);
 				mAccountSelectedPosition = listview.getCheckedItemPosition();
-				TextView account = (TextView) listview
-						.getChildAt(mAccountSelectedPosition);
-				nextButton.setEnabled(false);
-				registerAccount((String) account.getText());
+				TextView account = (TextView) listview.getChildAt(mAccountSelectedPosition);
+				promptForDeviceName(account.getText().toString());
 
 			}
 		});
 		String accounts[] = getAccounts();
 		ListView accountLV = (ListView) findViewById(R.id.AccountSelectlistView);
-		accountLV.setAdapter(new ArrayAdapter<String>(this, R.layout.account,
-				accounts));
+		accountLV.setAdapter(new ArrayAdapter<String>(this, R.layout.account, accounts));
 		accountLV.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		accountLV.setItemChecked(0, true);
 
@@ -182,8 +174,7 @@ public class SetupActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			if (mScreenId == R.layout.accountselection) {
 				// We must be in the middle of selecting account/registering
-				handleConnectingUpdate(intent.getIntExtra(
-						CloudRegistrar.STATUS_EXTRA,
+				handleConnectingUpdate(intent.getIntExtra(CloudRegistrar.STATUS_EXTRA,
 						CloudRegistrar.ERROR_STATUS));
 
 			}
@@ -212,8 +203,7 @@ public class SetupActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			Bundle extras = intent.getBundleExtra("AccountManagerBundle");
 			if (extras != null) {
-				Intent authIntent = (Intent) extras
-						.get(AccountManager.KEY_INTENT);
+				Intent authIntent = (Intent) extras.get(AccountManager.KEY_INTENT);
 				if (authIntent != null) {
 					mPendingAuth = true;
 					startActivity(authIntent);
@@ -224,6 +214,35 @@ public class SetupActivity extends Activity {
 
 	private void resetPrefs() {
 		Prefs.deletePrefs(this);
+	}
+
+	private void promptForDeviceName(final String accountName) {
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+		alert.setTitle("Device Name");
+		alert.setMessage("Please enter a name for this device");
+
+		final EditText input = new EditText(this);
+		input.setText(mNickname);
+		alert.setView(input);
+
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				mNickname = input.getText().toString();
+				SharedPreferences.Editor editor = Prefs.get(getBaseContext()).edit();
+				editor.putString(PREF_DEVICE_NICKNAME, mNickname);
+				editor.commit();
+				// Disable the next button
+				final Button nextButton = (Button) findViewById(R.id.next);
+				nextButton.setEnabled(false);
+
+				// Register the account
+				registerAccount(accountName);
+
+			}
+		});
+
+		alert.show();
 	}
 
 }

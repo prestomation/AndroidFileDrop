@@ -74,32 +74,6 @@ public class AppEngineClient {
 	private HttpResponse makeRequestNoRetry(String urlPath,
 			List<NameValuePair> params) throws Exception {
 		// Get auth token for account
-		/*
-		 * Account account = new Account(mAccountName, "com.google"); String
-		 * authToken = getAuthToken(mContext, account); if (authToken == null)
-		 * throw new PendingAuthException(mAccountName); if (newToken) { //
-		 * invalidate the cached token AccountManager accountManager =
-		 * AccountManager.get(mContext);
-		 * accountManager.invalidateAuthToken(account.type, authToken);
-		 * authToken = getAuthToken(mContext, account); }
-		 * 
-		 * // Get ACSID cookie DefaultHttpClient client = new
-		 * DefaultHttpClient(); String continueURL = BASE_URL; URI uri = new
-		 * URI(AUTH_URL + "?continue=" + URLEncoder.encode(continueURL, "UTF-8")
-		 * + "&auth=" + authToken); HttpGet method = new HttpGet(uri); final
-		 * HttpParams getParams = new BasicHttpParams();
-		 * HttpClientParams.setRedirecting(getParams, false); // continue is not
-		 * used method.setParams(getParams);
-		 * 
-		 * HttpResponse res = client.execute(method); Header[] headers =
-		 * res.getHeaders("Set-Cookie"); if (res.getStatusLine().getStatusCode()
-		 * != 302 || headers.length == 0) { return res; }
-		 * 
-		 * String ascidCookie = null; for (Header header: headers) { if
-		 * (header.getValue().indexOf("ACSID=") >=0) { // let's parse it String
-		 * value = header.getValue(); String[] pairs = value.split(";");
-		 * ascidCookie = pairs[0]; } }
-		 */
 		String ascidCookie = getASCIDCookie(true);
 
 		// Make POST request
