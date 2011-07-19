@@ -228,7 +228,7 @@ public class SetupActivity extends Activity {
 
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				mNickname = input.getText().toString();
+				mNickname = input.getText().toString().trim();
 				SharedPreferences.Editor editor = Prefs.get(getBaseContext()).edit();
 				editor.putString(PREF_DEVICE_NICKNAME, mNickname);
 				editor.commit();
